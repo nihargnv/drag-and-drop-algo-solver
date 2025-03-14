@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag and Drop Algorithm Challenge</title>
+    <style>
+        body { 
+            font-family: 'Courier New', monospace;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            text-align: center; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .main-container {
+            display: flex;
+            width: 80%;
+            max-width: 1200px;
+            margin: 20px auto;
+            gap: 20px;
+        }
+        .scroll-container {
+            max-height: 500px;
+            overflow-y: auto;
+            background-color: #252526;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ffffff;
+        }
+        .algo-container {
+            flex: 2;
+        }
+        .algo { 
+            text-align: left;
+            font-size: 18px;
+        }
+        .dropzone { 
+            display: inline-block; 
+            width: 150px; 
+            height: 30px; 
+            border: 2px dashed #ffffff; 
+            margin: 5px; 
+            vertical-align: middle; 
+            background-color: #3e3e3e;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+        }
+        .dropzone:hover {
+            background-color: #575757;
+        }
+        .block-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .block { 
+            display: inline-block; 
+            padding: 10px 20px; 
+            background: #007acc; 
+            color: white; 
+            cursor: grab; 
+            margin: 8px; 
+            border-radius: 5px;
+            font-size: 18px;
+            transition: transform 0.2s ease;
+        }
+        .block:active {
+            transform: scale(1.1);
+        }
+        button {
+            background: #007acc;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background 0.3s;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #005f99;
+        }
+        #result {
+            font-size: 40px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        #timer {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Complete the Algorithm</h2>
+    <p id="timer">Time left: 30s</p>
+    <div class="main-container">
+        <div class="scroll-container algo-container">
+            <div class="algo">
+                <p>function findMax(arr) {</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;let max = <span class="dropzone" data-answer="arr[0]"></span>;</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;for (let i = 1; i < <span class="dropzone" data-answer="arr.length"></span>; i++) {</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (arr[i] > max) {</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;max = <span class="dropzone" data-answer="arr[i]"></span>;</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;}</p>
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;return max;</p>
+                <p>}</p>
+            </div>
+        </div>
+        <div class="scroll-container block-container" id="blocks">
+            <div class="block" draggable="true" data-value="arr[0]">arr[0]</div>
+            <div class="block" draggable="true" data-value="arr.length">arr.length</div>
+            <div class="block" draggable="true" data-value="arr[i]">arr[i]</div>
+            <div class="block" draggable="true" data-value="0">0</div>
+        </div>
+        <button onclick="start()">Start</button>
+    </div>
+    <p id="result"></p>
+    <script src="script.js"></script>
+    <script>
+        const blocks = document.querySelectorAll(".block");
+        const dropzones = document.querySelectorAll(".dropzone");
+        let gameActive = true;
+
+        blocks.forEach(block => {
+            block.addEventListener("dragstart", (e) => {
+                if (!gameActive) return;
+                e.dataTransfer.setData("text", e.target.getAttribute("data-value"));
+            });
+        });
+
+        dropzones.forEach(zone => {
+            zone.addEventListener("dragover", (e) => {
+                if (gameActive) e.preventDefault();
+            });
+            zone.addEventListener("drop", (e) => {
+                if (!gameActive) return;
+                e.preventDefault();
+                const data = e.dataTransfer.getData("text");
+                e.target.innerText = data;
+                e.target.setAttribute("data-filled", data);
+            });
+        });
+
+        function checkAnswers() {
+            if (!gameActive) return;
+            let correct = 0;
+            dropzones.forEach(zone => {
+                if (zone.getAttribute("data-filled") === zone.getAttribute("data-answer")) {
+                    correct++;
+                }
+            });
+            const result = document.getElementById("result");
+            result.innerText = `Score: ${correct} / ${dropzones.length}`;
+            result.style.opacity = "1";
+            gameActive = false;
+        }
+
+        // setInterval(() => {
+        //     if (timeLeft > 0) {
+        //         timeLeft--;
+        //         timerElement.innerText = Time left: ${timeLeft}s;
+        //     } else {
+        //         checkAnswers();
+        //         gameActive = false;
+        //         timerElement.innerText = "Time's up!";
+        //     }
+        // }, 1000);
+
+        window.addEventListener("beforeunload", function (e) {
+            e.preventDefault();
+            e.returnValue = "Are you sure you want to leave? Your progress will be lost.";
+        });
+    </script>
+</body>
+</html>
